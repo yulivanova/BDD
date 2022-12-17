@@ -6,29 +6,73 @@ import ru.netology.web.data.DataHelper;
 import ru.netology.web.page.*;
 
 import static com.codeborne.selenide.Selenide.open;
+import static ru.netology.web.data.DataHelper.getCardsNumberFirst;
 import static ru.netology.web.data.DataHelper.getCardsNumberSecond;
 
 
 public class MoneyTransferTest {
 
     @Test
-    void shouldTransferMoneyFromTwoToOne() {
+    void shouldTransferMoneyFromFirstToSecond() {
         var loginPage = open("http://localhost:9999", LoginPage.class);
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         verificationPage.validVerify(verificationCode);
         var dashboardPage = new DashboardPage();
-        var firstCardBalanceStart = dashboardPage.getFirstCardBalance();
-        var secondCardBalanceStart = dashboardPage.getSecondCardBalance();
-        var amountInput = 10000;
-        var firstCard = DataHelper.getCardsNumberFirst();
-        var transferPage = dashboardPage.selectCardButton(firstCard.getCardId());
-        dashboardPage = transferPage.cardReplenishment(amountInput, getCardsNumberSecond().getNumber());
+        var firstCard = getCardsNumberFirst();
+        var secondCard = getCardsNumberSecond();
+        int amountInput = 1000;
+        var firstCardBalanceStart = dashboardPage.getFirstCardBalance() - amountInput;
+        var secondCardBalanceStart = dashboardPage.getSecondCardBalance() + amountInput;
+        var transferPage = dashboardPage.selectCardButton(secondCard.getCardId());
+        dashboardPage = transferPage.cardReplenishment(Integer.parseInt(String.valueOf(amountInput)), String.valueOf(firstCard));
         var firstCardBalanceFinish = dashboardPage.getFirstCardBalance();
         var secondCardBalanceFinish = dashboardPage.getSecondCardBalance();
-        Assertions.assertEquals(firstCardBalanceStart + amountInput, firstCardBalanceFinish);
-        Assertions.assertEquals(secondCardBalanceStart - amountInput, secondCardBalanceFinish);
+        Assertions.assertEquals(firstCardBalanceStart, firstCardBalanceFinish);
+        Assertions.assertEquals(secondCardBalanceStart, secondCardBalanceFinish);
+    }
+
+    @Test
+    void shouldTransferMoneyFromSecondToFirst() {
+        var loginPage = open("http://localhost:9999", LoginPage.class);
+        var authInfo = DataHelper.getAuthInfo();
+        var verificationPage = loginPage.validLogin(authInfo);
+        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        verificationPage.validVerify(verificationCode);
+        var dashboardPage = new DashboardPage();
+        var firstCard = getCardsNumberFirst();
+        var secondCard = getCardsNumberSecond();
+        int amountInput = 500;
+        var firstCardBalanceStart = dashboardPage.getFirstCardBalance() + amountInput;
+        var secondCardBalanceStart = dashboardPage.getSecondCardBalance() - amountInput;
+        var transferPage = dashboardPage.selectCardButton(firstCard.getCardId());
+        dashboardPage = transferPage.cardReplenishment(Integer.parseInt(String.valueOf(amountInput)), String.valueOf(secondCard));
+        var firstCardBalanceFinish = dashboardPage.getFirstCardBalance();
+        var secondCardBalanceFinish = dashboardPage.getSecondCardBalance();
+        Assertions.assertEquals(firstCardBalanceStart, firstCardBalanceFinish);
+        Assertions.assertEquals(secondCardBalanceStart, secondCardBalanceFinish);
+    }
+
+    @Test
+    void shouldTransferMoneyFromSecondToFirstNull() {
+        var loginPage = open("http://localhost:9999", LoginPage.class);
+        var authInfo = DataHelper.getAuthInfo();
+        var verificationPage = loginPage.validLogin(authInfo);
+        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        verificationPage.validVerify(verificationCode);
+        var dashboardPage = new DashboardPage();
+        var firstCard = getCardsNumberFirst();
+        var secondCard = getCardsNumberSecond();
+        int amountInput = dashboardPage.getFirstCardBalance() + 197912;
+        var firstCardBalanceStart = dashboardPage.getFirstCardBalance();
+        var secondCardBalanceStart = dashboardPage.getSecondCardBalance();
+        var transferPage = dashboardPage.selectCardButton(secondCard.getCardId());
+        dashboardPage = transferPage.cardReplenishment(Integer.parseInt(String.valueOf(amountInput)), String.valueOf(firstCard));
+        var firstCardBalanceFinish = dashboardPage.getFirstCardBalance();
+        var secondCardBalanceFinish = dashboardPage.getSecondCardBalance();
+        Assertions.assertEquals(firstCardBalanceStart, firstCardBalanceFinish);
+        Assertions.assertEquals(secondCardBalanceStart, secondCardBalanceFinish);
     }
 }
 

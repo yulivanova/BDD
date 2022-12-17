@@ -19,12 +19,12 @@ public class DashboardPage {
     }
 
     public int getFirstCardBalance() {
-        val text = cards.get(0).text();
+        val text = cards.first().text();
         return extractBalance(text);
     }
 
     public int getSecondCardBalance() {
-        val text = cards.get(1).text();
+        val text = cards.last().text();
         return extractBalance(text);
     }
 
